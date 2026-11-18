@@ -1,0 +1,59 @@
+openapi: 3.1.0
+info:
+  title: SciFact Retrieval API
+  version: 1.0.0
+  description: Servicio de búsqueda SciFact usando TF-IDF con coseno y BM25.
+servers:
+  - url: https://TU-PROYECTO.vercel.app
+paths:
+  /health:
+    get:
+      summary: Verifica disponibilidad
+      responses:
+        '200':
+          description: Servicio disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: {type: string, example: ok}
+                  corpus: {type: string, example: SciFact}
+                  index_loaded: {type: boolean}
+  /search:
+    post:
+      summary: Recupera documentos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: {type: string, minLength: 1, maxLength: 2000}
+                model: {type: string, enum: [bm25, tfidf], default: bm25}
+                top_k: {type: integer, minimum: 1, maximum: 100, default: 10}
+      responses:
+        '200':
+          description: Resultados por puntuación descendente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  model: {type: string}
+                  query: {type: string}
+                  top_k: {type: integer}
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank: {type: integer}
+                        document_id: {type: string}
+                        score: {type: number}
+                        title: {type: string}
+                        snippet: {type: string}
+        '400': {description: Consulta sin términos válidos}
+        '422': {description: Parámetros inválidos}

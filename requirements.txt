@@ -1,0 +1,5 @@
+fastapi
+numpy
+datasets
+scikit-learn
+rank-bm25
